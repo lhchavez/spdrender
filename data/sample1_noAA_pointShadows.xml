@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : scene_example.xml
+    Created on : December 18, 2008, 10:41 PM
+    Author     : Maximiliano Monterrubio Gutierrez.
+    Description:
+        Describes a sample scene used by SPDRender to synthesize the image using the ray tracer engine.
+-->
+
+<!DOCTYPE scene [
+    <!ELEMENT scene    ((light|box|plane|sphere)+)>
+        <!ATTLIST scene       width     CDATA #REQUIRED>
+        <!ATTLIST scene       height    CDATA #REQUIRED>
+        <!ATTLIST scene       aa        CDATA #REQUIRED> 
+        <!ATTLIST scene       name      CDATA #REQUIRED>
+        <!ATTLIST scene       campos    CDATA #REQUIRED>
+        <!ATTLIST scene       camdir    CDATA #REQUIRED>
+    <!ELEMENT light    EMPTY>
+        <!ATTLIST light   pos       CDATA #REQUIRED>
+        <!ATTLIST light   dir    CDATA #REQUIRED>
+        <!ATTLIST light   intensity CDATA #REQUIRED>
+        <!ATTLIST light   color     CDATA #REQUIRED>
+        <!ATTLIST light   type      (point|surface) #REQUIRED>
+        <!ATTLIST light   name      CDATA #REQUIRED>
+        <!ATTLIST light   size      CDATA #REQUIRED>        
+        <!ATTLIST light   samples   CDATA #REQUIRED>
+    <!ELEMENT sphere   EMPTY>
+        <!ATTLIST sphere  radius    CDATA #REQUIRED>
+        <!ATTLIST sphere  pos       CDATA #REQUIRED>
+        <!ATTLIST sphere  specular  CDATA #REQUIRED>
+        <!ATTLIST sphere  diffuse   CDATA #REQUIRED>
+        <!ATTLIST sphere  reflect   CDATA #REQUIRED>
+        <!ATTLIST sphere  spechard  CDATA #REQUIRED>
+        <!ATTLIST sphere  name      CDATA #REQUIRED>
+        <!ATTLIST sphere  color     CDATA #REQUIRED>
+        <!ATTLIST sphere  refract   CDATA #REQUIRED>
+        <!ATTLIST sphere  ior       CDATA #REQUIRED>
+    <!ELEMENT box      EMPTY>
+        <!ATTLIST box     width     CDATA #REQUIRED>
+        <!ATTLIST box     height    CDATA #REQUIRED>
+        <!ATTLIST box     depth     CDATA #REQUIRED>
+        <!ATTLIST box     pos       CDATA #REQUIRED>
+        <!ATTLIST box     specular  CDATA #REQUIRED>
+        <!ATTLIST box     spechard  CDATA #REQUIRED>
+        <!ATTLIST box     diffuse   CDATA #REQUIRED>
+        <!ATTLIST box     reflect   CDATA #REQUIRED>
+        <!ATTLIST box     name      CDATA #REQUIRED>
+        <!ATTLIST box     color     CDATA #REQUIRED>
+        <!ATTLIST box     refract   CDATA #REQUIRED>
+        <!ATTLIST box     ior       CDATA #REQUIRED>
+    <!ELEMENT plane    EMPTY>
+        <!ATTLIST plane    normal    CDATA #REQUIRED>
+        <!ATTLIST plane    pos       CDATA #REQUIRED>
+        <!ATTLIST plane    specular  CDATA #REQUIRED>
+        <!ATTLIST plane    spechard  CDATA #REQUIRED>
+        <!ATTLIST plane    diffuse   CDATA #REQUIRED>
+        <!ATTLIST plane    reflect   CDATA #REQUIRED>
+        <!ATTLIST plane    name      CDATA #REQUIRED>
+        <!ATTLIST plane    color     CDATA #REQUIRED>
+        <!ATTLIST plane    refract   CDATA #REQUIRED>
+        <!ATTLIST plane    ior       CDATA #REQUIRED>
+
+]>
+<scene width="800" height="600" aa="1" name="TestScene" campos="0,-2,3"
+       camdir="0,0.5,-1">
+    <light color="1,1,0.7" pos="1,3,6" dir="0,0,-1" intensity="1"
+	   type="point" name="Light2" samples="1" size="1" />
+    <light color="0.6,0.6,1.0" pos="1,-3,6" dir="0,0,-1" intensity="0.5"
+	   type="point" name="Light2" samples="1" size="1" />
+    <plane color="1,1,1" diffuse="0.6" name="Plane1" specular="0.1"
+	   spechard="10" pos="0,0,1" normal="0,0,1" reflect="1" 
+	   refract="0.0" ior="1.0" />  
+    <sphere color="0.0,0.7,0.0" diffuse="0.9" specular="0.9" spechard="30"
+	    reflect="0.5" radius="1" pos="-2,0,2" name="Sphere1" 
+	    refract="0.0" ior="1.0" />  
+    <sphere color="0.8,0.1,0.1" diffuse="0.7" specular="0.7" spechard="30" 
+	    reflect="1.0" radius="1" pos="2,0,2" name="Sphere2" 
+	    refract="0.0" ior="1.0" />  
+    <sphere color="0.8,0.7,0.2" diffuse="0.7" specular="0.7" spechard="30" 
+	    reflect="1.0" radius="0.7" pos="0,0,3" name="Sphere2" 
+	    refract="0" ior="1.5" />  
+    <box color="0.5,0,0.8" pos="-0.5,1,1" width="1" height="1" depth="1" 
+	 specular="0.7" spechard="20" diffuse="0.9" reflect="0" name="Box1" 
+	 refract="0.0" ior="1.0" />  
+    <box color="0.0,0.3,0.3" pos="-0.5,-1,1" width="1" height="1" depth="1" 
+	 specular="0.7" spechard="20" diffuse="0.9" reflect="0" name="Box1" 
+	 refract="0.0" ior="1.0" />  
+</scene>
