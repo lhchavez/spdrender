@@ -1,0 +1,348 @@
+\documentclass[]{article}
+
+%codigo
+\usepackage{color}
+\definecolor{gray97}{gray}{.97}
+\definecolor{gray75}{gray}{.75}
+\definecolor{gray45}{gray}{.45}
+ 
+
+
+\usepackage{color}
+\definecolor{gray97}{gray}{.97}
+\definecolor{gray75}{gray}{.75}
+\definecolor{gray45}{gray}{.45}
+ 
+\usepackage{listings}
+\lstset{ frame=Ltb,
+     framerule=0pt,
+     aboveskip=0.5cm,
+     framextopmargin=3pt,
+     framexbottommargin=3pt,
+     framexleftmargin=0.4cm,
+     framesep=0pt,
+     rulesep=.4pt,
+     backgroundcolor=\color{gray97},
+     rulesepcolor=\color{black},
+     %
+     stringstyle=\ttfamily,
+     showstringspaces = false,
+     basicstyle=\small\ttfamily,
+     commentstyle=\color{gray45},
+     keywordstyle=\color{black}\bf,
+     %
+     numbers=left,
+     numbersep=15pt,
+     numberstyle=\tiny,
+     numberfirstline = false,
+     breaklines=true,
+   }
+
+ 
+% minimizar fragmentado de listados
+\lstnewenvironment{listing}[1][]
+   {\lstset{#1}\pagebreak[0]}{\pagebreak[0]}
+
+\lstdefinestyle{consola}
+   {basicstyle=\scriptsize\bf\ttfamily,
+    backgroundcolor=\color{gray75},
+   }
+
+
+\lstdefinestyle{C}
+   {language=C,
+   }
+
+%end codigo
+
+
+% Use utf-8 encoding for foreign characters
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+% Setup for fullpage use
+\usepackage{fullpage}
+
+% Uncomment some of the following if you use the features
+%
+% Running Headers and footers
+%\usepackage{fancyhdr}
+
+% Multipart figures
+%\usepackage{subfigure}
+
+% More symbols
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{latexsym}
+
+% Surround parts of graphics with box
+\usepackage{boxedminipage}
+
+% Package for including code in the document
+\usepackage{listings}
+
+% If you want to generate a toc for each chapter (use with book)
+\usepackage{minitoc}
+
+% This is now the recommended way for checking for PDFLaTeX:
+\usepackage{ifpdf}
+
+%\newif\ifpdf
+%\ifx\pdfoutput\undefined
+%\pdffalse % we are not running PDFLaTeX
+%\else
+%\pdfoutput=1 % we are running PDFLaTeX
+%\pdftrue
+%\fi
+
+\ifpdf
+\usepackage[pdftex]{graphicx}
+\else
+\usepackage{graphicx}
+\fi
+
+\begin{document}
+
+\ifpdf
+\DeclareGraphicsExtensions{.pdf, .jpg, .tif}
+\else
+\DeclareGraphicsExtensions{.eps, .jpg}
+\fi
+
+
+\title{Síntesis de Imagen por medio de \emph{Ray Tracing} \\ Proyecto Final \\ Procesos Paralelos y Distribuidos}
+\author{Maximiliano Monterrubio Gutiérrez\\No.Cuenta: 405074855\\\\E-mail: maxmg22@ciencias.unam.mx}
+\date{\today}
+
+{\sffamily \maketitle}
+
+\begin{abstract}
+ La síntesis de imagen 3D es un área de trabajo muy fresca en la computación moderna.  Este proyecto tiene como objetivo el 
+desarrollo de una aplicación de síntesis de imágenes empleando técnicas de procesamiento paralelo y distribuido.
+\end{abstract}
+
+\section{Definición del problema}
+
+El proyecto desarrollado resuelve el problema de sintetizar una imagen tridimensional dado una especificación de \emph{escena}.  Dicha escena es un conjunto de objetos del espacio tridimensional y atributos tanto de estos últimos, como de la escena de manera global.  
+
+Aunque existen varias técnicas de síntesis de imagen, este proyecto se enfoca en la más moderna y utilizada actualmente en el ámbito de la visualización computacional: el algoritmo de \emph{ray tracing}.
+
+La parte central de este proyecto, además de ser la correcta implementación de este algoritmo, es el poder explotar el paralelismo de las nuevas máquinas multi-núcleo y además ofrecer la posibilidad de un sistema de síntesis distribuido; esto es, poder coordinar diversos equipos de cómputo conectados por medio de una red para realizar conjuntamente el trabajo de síntesis de la escena especificada.
+
+\section{Especificación del proyecto}
+
+
+\subsection{Características Generales}
+
+\begin{enumerate}
+ \item \textbf{Plataforma de desarrollo: } El proyecto está desarrollado en \texttt{Java} con la versión \texttt{1.6} de la máquina
+ virtual utilizando el entorno integrado de desarrollo \texttt{NetBeans 6.1}.
+ \item \textbf{Algoritmo de síntesis: }  \emph{Ray tracing} recursivo.
+  \item \textbf{Formato de la especificación de escena: } Documento \texttt{XML} con \texttt{DTD} embebido.
+ \item \textbf{Soporte multi-hilo: } Configurable y 100\% libre de espera y bloqueos.
+ \item \textbf{Subsistema de síntesis distribuido: } Montado sobre el stack \texttt{TCP/IP} utilizando el protocolo \texttt{TCP}.
+ La aplicación integra tanto el módulo de cliente como el de servidor.
+ \item \textbf{Almacenamiento de imágenes: } Se soporta únicamente el formato \texttt{PNG} (\emph{Portable Network Graphics}).
+ \item \textbf{Interfaz gráfica: } Biblioteca \texttt{Swing} de Java.
+\end{enumerate}
+
+\subsection{Sistema de síntesis}
+
+\subsubsection{Soporte de primitivos}
+
+\begin{enumerate}
+ \item Plano infinito con la notación vector \emph{punto/normal}.
+ \item Esferas definidas como vector origen y radio.
+ \item Paralelepípedos alineados a los ejes \emph{X}, \emph{Y}, \emph{Z} definidos por un vector de esquina, y un vector 
+ para la longitud de cada lado en su eje respectivo.
+\end{enumerate}
+
+\subsubsection{Iluminación}
+
+\begin{enumerate}
+ \item Luz puntual con sombra sencilla.
+ \item Luz de superficie con multimuestreo bidimensional de monte carlo configurable en la escena.
+\end{enumerate}
+
+\subsubsection{Materiales}
+
+\begin{enumerate}
+ \item Color del material
+ \item Iluminación básica empleando el modelo de Lambert.
+ \item Soporte de iluminación especular con dureza e intensidad configurable.
+ \item Reflexión con coeficiente configurable.
+ \item Índice de refracción e intensidad configurable.
+\end{enumerate}
+
+
+\subsubsection{Algoritmo de \emph{Ray Tracing}}
+\begin{enumerate}
+ \item Reflexión y refracción por \emph{ray trace} recursivo con rebote configurable.
+ \item Reducción de artefactos de \emph{aliasing} por medio de soporte para \emph{oversampling} configurable en la escena.
+ \item Se puede configurar la ubicación y dirección de la cámara.
+\end{enumerate}
+
+\subsubsection{Sistema de síntesis multi-hilo}
+
+\begin{enumerate}
+  \item Soporte para \emph{ray tracing} multi-hilo libre de bloqueo y espera.
+  \item Visualización progresiva del \emph{framebuffer}.
+\end{enumerate}
+
+\subsubsection{Subsistema de síntesis distribuido}
+
+\begin{enumerate}
+ \item Arquitectura cliente/servidor bajo \texttt{TCP}.
+ \item Soporte para balanceo de carga basado en reloj de procesador y número de núcleos por nodo, soportando así síntesis distribuida
+ y paralelizada en cada nodo.
+\end{enumerate}
+
+\section{Manejo de la aplicación}
+
+\subsection{Entrada de datos}
+
+La escena 3D a sintetizar se debe especificar como un archivo \texttt{XML} con el siguiente esquema:
+
+\begin{lstlisting}[language=XML]
+<!DOCTYPE scene [
+    <!ELEMENT scene    ((light|box|plane|sphere)+)>
+        <!ATTLIST scene       width     CDATA #REQUIRED>
+        <!ATTLIST scene       height    CDATA #REQUIRED>
+        <!ATTLIST scene       aa        CDATA #REQUIRED> 
+        <!ATTLIST scene       name      CDATA #REQUIRED>
+        <!ATTLIST scene       campos    CDATA #REQUIRED>
+        <!ATTLIST scene       camdir    CDATA #REQUIRED>
+    <!ELEMENT light    EMPTY>
+        <!ATTLIST light   pos       CDATA #REQUIRED>
+        <!ATTLIST light   dir    CDATA #REQUIRED>
+        <!ATTLIST light   intensity CDATA #REQUIRED>
+        <!ATTLIST light   color     CDATA #REQUIRED>
+        <!ATTLIST light   type      (point|surface) #REQUIRED>
+        <!ATTLIST light   name      CDATA #REQUIRED>
+        <!ATTLIST light   size      CDATA #REQUIRED>        
+        <!ATTLIST light   samples   CDATA #REQUIRED>
+    <!ELEMENT sphere   EMPTY>
+        <!ATTLIST sphere  radius    CDATA #REQUIRED>
+        <!ATTLIST sphere  pos       CDATA #REQUIRED>
+        <!ATTLIST sphere  specular  CDATA #REQUIRED>
+        <!ATTLIST sphere  diffuse   CDATA #REQUIRED>
+        <!ATTLIST sphere  reflect   CDATA #REQUIRED>
+        <!ATTLIST sphere  spechard  CDATA #REQUIRED>
+        <!ATTLIST sphere  name      CDATA #REQUIRED>
+        <!ATTLIST sphere  color     CDATA #REQUIRED>
+        <!ATTLIST sphere  refract   CDATA #REQUIRED>
+        <!ATTLIST sphere  ior       CDATA #REQUIRED>
+    <!ELEMENT box      EMPTY>
+        <!ATTLIST box     width     CDATA #REQUIRED>
+        <!ATTLIST box     height    CDATA #REQUIRED>
+        <!ATTLIST box     depth     CDATA #REQUIRED>
+        <!ATTLIST box     pos       CDATA #REQUIRED>
+        <!ATTLIST box     specular  CDATA #REQUIRED>
+        <!ATTLIST box     spechard  CDATA #REQUIRED>
+        <!ATTLIST box     diffuse   CDATA #REQUIRED>
+        <!ATTLIST box     reflect   CDATA #REQUIRED>
+        <!ATTLIST box     name      CDATA #REQUIRED>
+        <!ATTLIST box     color     CDATA #REQUIRED>
+        <!ATTLIST box     refract   CDATA #REQUIRED>
+        <!ATTLIST box     ior       CDATA #REQUIRED>
+    <!ELEMENT plane    EMPTY>
+        <!ATTLIST plane    normal    CDATA #REQUIRED>
+        <!ATTLIST plane    pos       CDATA #REQUIRED>
+        <!ATTLIST plane    specular  CDATA #REQUIRED>
+        <!ATTLIST plane    spechard  CDATA #REQUIRED>
+        <!ATTLIST plane    diffuse   CDATA #REQUIRED>
+        <!ATTLIST plane    reflect   CDATA #REQUIRED>
+        <!ATTLIST plane    name      CDATA #REQUIRED>
+        <!ATTLIST plane    color     CDATA #REQUIRED>
+        <!ATTLIST plane    refract   CDATA #REQUIRED>
+        <!ATTLIST plane    ior       CDATA #REQUIRED>
+
+]>
+\end{lstlisting}
+
+Lo más sencillo es ver un ejemplo:
+
+\begin{lstlisting}
+<scene width="800" height="600" aa="1" name="TestScene" campos="0,-2,3"
+       camdir="0,0.5,-1">
+    <light color="1,1,0.7" pos="1,3,6" dir="0,0,-1" intensity="0.5"
+	   type="surface" name="Light2" samples="8" size="1" />
+    <light color="0.6,0.6,1.0" pos="1,-3,6" dir="0,0,-1" intensity="0.5"
+	   type="surface" name="Light2" samples="8" size="1" />
+    <plane color="1,1,1" diffuse="0.6" name="Plane1" specular="0.1"
+	   spechard="10" pos="0,0,1" normal="0,0,1" reflect="1" 
+	   refract="0.0" ior="1.0" />  
+    <sphere color="0.0,0.7,0.0" diffuse="0.9" specular="0.9" spechard="30"
+	    reflect="0.5" radius="1" pos="-2,0,2" name="Sphere1" 
+	    refract="0.0" ior="1.0" />  
+    <sphere color="0.8,0.1,0.1" diffuse="0.7" specular="0.7" spechard="30" 
+	    reflect="1.0" radius="1" pos="2,0,2" name="Sphere2" 
+	    refract="0.0" ior="1.0" />  
+    <box color="0.5,0,0.8" pos="-0.5,1,1" width="1" height="1" depth="1" 
+	 specular="0.7" spechard="20" diffuse="0.9" reflect="0" name="Box1" 
+	 refract="0.0" ior="1.0" />  
+    <box color="0.0,0.3,0.3" pos="-0.5,-1,1" width="1" height="1" depth="1" 
+	 specular="0.7" spechard="20" diffuse="0.9" reflect="0" name="Box1" 
+	 refract="0.0" ior="1.0" />  
+</scene>
+\end{lstlisting}
+
+\section{Síntesis local}
+
+Para sintetizar una imagen en el equipo local, basta con seleccionar el menú \emph{Render/Render Scene...} donde se abre un panel 
+para seleccionar el documento XML que especifica la escena y luego se puede seleccionar el número de hilos de ejecución a crear.
+
+\section{Síntesis distribuida}
+
+Realizar un trabajo de síntesis distribuido requiere ejecutar diversas instancias de la aplicación, una en cada nodo cliente, y una en el nodo servidor.  En caso de que el servidor también vaya a realizar trabajo es necesario ejecutar dos instancias de la aplicación, una actuando como servidor y la otra como cliente usando la dirección de \emph{loopback} \texttt{127.0.0.1}.
+
+\subsection{Nodo servidor}
+
+En caso de querer establecer un equipo como servidor, seleccionamos la opción de menú \emph{Render/Distributed Render/Host a scene...}, posteriormente aparece un cuadro de diálogo que pregunta el número de nodos a esperar y el puerto \texttt{TCP} de escucha.
+
+\emph{NOTA: } El servidor espera indefinidamente y no envía carga a ningún nodo hasta que se alcance el número de nodos especificado
+en este cuadro de diálogo.  La razón de esto es porque necesita conocer información relevante de cada nodo para realizar el balanceo
+de cargas.
+
+Una vez introducidos estos datos, aparece un cuadro de diálogo para introducir la escena a sintetizar.  Al momento de seleccionar el
+archivo, el servidor inicia el proceso de escucha de los nodos cliente y abre una ventana para visualizar el \emph{framebuffer} (i.e. la imagen que se va a ir sintetizando).
+
+Cada que un nodo se conecta y empieza a realizar trabajo, se reflejará en el \emph{framebuffer} servidor conforme su trabajo va 
+avanzando.
+
+\subsection{Nodo cliente}
+
+Una vez levantado el nodo servidor, es posible conectarse a él levantando la aplicación en un cliente, y seleccionado la opción de
+menú \emph{Render/Distributed Render/Connect to host...}.  Posteriormente aparece un cuadro de diálogo donde hay que especificar:
+\begin{enumerate}
+ \item \textbf{Dirección del servidor: } Ya sea una dirección \texttt{IP} o un nombre de dominio.
+ \item \textbf{Puerto: } El puerto \texttt{TCP} donde el servidor espera conexiones.
+ \item \textbf{Velocidad de reloj del cliente: } Es importante proporcionar la velocidad de reloj de nuestro equipo con la finalidad
+ de que el balanceador de cargas distribuya de manera más uniforme el trabajo en base al poder de cómputo de cada nodo.
+ \item \textbf{Hilos de ejecución: } El número de hilos de síntesis que el nodo cliente ejecutará al recibir los datos.  
+\end{enumerate}
+
+Al haber introducido estos datos, en caso de que la conexión sea satisfactoria y no hayan errores, aparecerá un diálogo de progreso del proceso de síntesis local.  Al finalizar, el servidor habrá recibido todo el trabajo realizado por este nodo local y es posible
+cerrar la aplicación.
+
+\section{Ejecutar el proyecto}
+
+Para ejecutar el proyecto necesitamos compilar el código y crear el paquete \emph{jar} con los archivos de clase y bibliotecas necesarias, para ellos usamos el target \texttt{jar} de \texttt{ant}, el \texttt{jar} ejecutable se encuentra en \texttt{dist}:
+
+\begin{verbatim}
+$ cd <ubicacion del proyecto>
+$ ant jar
+$ cd dist
+$ java -jar SPDRender.jar
+\end{verbatim}
+
+En el directorio \texttt{data} se encuentra una escena de muestra con 3 configuraciones diferentes para poder contrastar las
+características del \emph{ray tracer}:
+
+\begin{enumerate}
+ \item \texttt{sample1\_noAA\_pointShadows.xml} Escena de ejemplo con iluminación puntual sin sobremuestreo (\emph{oversampling}).
+ \item \texttt{sample1\_8AA\_pointShadows.xml}  Escena de ejemplo con iluminación puntual usando 64 muestras por píxel.
+ \item \texttt{sample1\_8AA\_softShadows.xml} Escena de ejemplo con iluminación de superficie empleando 64 muestras por píxel y 64 
+ muestras por fuente luminosa. El trabajo de síntesis de este archivo es pesado, tomar en cuenta al probarlo.
+\end{enumerate}
+\end{document}
