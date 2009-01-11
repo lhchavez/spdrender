@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : scene_example.xml
+    Created on : December 18, 2008, 10:41 PM
+    Author     : Maximiliano Monterrubio Gutierrez.
+    Description:
+        Describes a sample scene used by SPDRender to synthesize the image using the ray tracer engine.
+-->
+
+<!DOCTYPE scene [
+    <!ELEMENT scene    ((light|box|mesh|plane|sphere)+)>
+        <!ATTLIST scene       width     CDATA #REQUIRED>
+        <!ATTLIST scene       height    CDATA #REQUIRED>
+        <!ATTLIST scene       aa        CDATA #REQUIRED> 
+        <!ATTLIST scene       name      CDATA #REQUIRED>
+        <!ATTLIST scene       campos    CDATA #REQUIRED>
+        <!ATTLIST scene       camdir    CDATA #REQUIRED>
+    <!ELEMENT light    EMPTY>
+        <!ATTLIST light   pos       CDATA #REQUIRED>
+        <!ATTLIST light   dir       CDATA #REQUIRED>
+        <!ATTLIST light   intensity CDATA #REQUIRED>
+        <!ATTLIST light   color     CDATA #REQUIRED>
+        <!ATTLIST light   type      (surface|point|sun) #REQUIRED>
+        <!ATTLIST light   size      CDATA #REQUIRED>
+        <!ATTLIST light   name      CDATA #REQUIRED>
+    <!ELEMENT sphere   EMPTY>
+        <!ATTLIST sphere  radius    CDATA #REQUIRED>
+        <!ATTLIST sphere  pos       CDATA #REQUIRED>
+        <!ATTLIST sphere  specular  CDATA #REQUIRED>
+        <!ATTLIST sphere  diffuse   CDATA #REQUIRED>
+        <!ATTLIST sphere  reflect   CDATA #REQUIRED>
+        <!ATTLIST sphere  spechard  CDATA #REQUIRED>
+        <!ATTLIST sphere  name      CDATA #REQUIRED>
+        <!ATTLIST sphere  color     CDATA #REQUIRED>
+    <!ELEMENT box      EMPTY>
+        <!ATTLIST box     edgesize  CDATA #REQUIRED>
+        <!ATTLIST box     pos       CDATA #REQUIRED>
+        <!ATTLIST box     specular  CDATA #REQUIRED>
+        <!ATTLIST box     spechard  CDATA #REQUIRED>
+        <!ATTLIST box     diffuse   CDATA #REQUIRED>
+        <!ATTLIST box     reflect   CDATA #REQUIRED>
+        <!ATTLIST box     name      CDATA #REQUIRED>
+        <!ATTLIST box     color     CDATA #REQUIRED>
+    <!ELEMENT mesh     (triangle+)>
+        <!ATTLIST mesh     specular CDATA #REQUIRED>
+        <!ATTLIST mesh     spechard CDATA #REQUIRED>
+        <!ATTLIST mesh     diffuse  CDATA #REQUIRED>
+        <!ATTLIST mesh     reflect  CDATA #REQUIRED>
+        <!ATTLIST mesh     name     CDATA #REQUIRED>
+        <!ATTLIST mesh     color     CDATA #REQUIRED>
+    <!ELEMENT triangle EMPTY>
+        <!ATTLIST triangle v1       CDATA #REQUIRED>
+        <!ATTLIST triangle v2       CDATA #REQUIRED>
+        <!ATTLIST triangle v3       CDATA #REQUIRED>
+    <!ELEMENT plane    EMPTY>
+        <!ATTLIST plane    normal    CDATA #REQUIRED>
+        <!ATTLIST plane    pos       CDATA #REQUIRED>
+        <!ATTLIST plane    specular  CDATA #REQUIRED>
+        <!ATTLIST plane    spechard  CDATA #REQUIRED>
+        <!ATTLIST plane    diffuse   CDATA #REQUIRED>
+        <!ATTLIST plane    reflect   CDATA #REQUIRED>
+        <!ATTLIST plane    name      CDATA #REQUIRED>
+        <!ATTLIST plane    color     CDATA #REQUIRED>
+]>
+<scene width="800" height="600" aa="1" name="TestScene" campos="0,0,0" camdir="1,1,1">
+    <light type="surface" pos="5,3,1" dir="0,0,1" intensity="1" color="0.5,0.2,0.2" size="1" name="Lamp1" />
+    <mesh color="0.5,0.5,0.1" specular="0.4" spechard="20" diffuse="0.8" reflect="0.1" name="Mesh1">
+        <triangle v1="1,1,1" v2="2,2,2" v3="-1,2,3" />
+        <triangle v1="0,1,1" v2="5,2,2" v3="-1,4,3" />
+        <triangle v1="1,0,1" v2="2,2,2" v3="-8,2,-1" />
+    </mesh>
+    <plane color="0.1,0.1,0.1" diffuse="0.8" name="Plane1" specular="0.3" spechard="100" pos="1,5,4" normal="1,0,0" reflect="0.1" />
+    <sphere color="0.3,0.1,0.1" diffuse="0.9" specular="0.5" spechard="40" reflect="0.2" radius="1" pos="0,0,0" name="Sphere1" />
+    <sphere color="0.1,0.8,0.1" diffuse="0.9" specular="0.5" spechard="40" reflect="0.2" radius="1" pos="3,3,3" name="Sphere2" />
+    <box color="0.1,0.1,0.5" edgesize="5" pos="0,0,1" specular="0.5" spechard="20" diffuse="0.95" reflect="0.1" name="Box1" />
+</scene>
