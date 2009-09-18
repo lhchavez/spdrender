@@ -71,7 +71,7 @@ public class Vector3D {
      * @return this - v.
      */
     public Vector3D sub(Vector3D v){
-        return this.add(v.inv());
+        return new Vector3D(x - v.x, y - v.y, z - v.z);
     }
     
     /** Inverts the direction of this vector (i.e. multiplies it by -1).
