@@ -13,9 +13,11 @@ import javax.imageio.ImageIO;
 import java.io.IOException;
 import java.io.File;
 
+import java.util.concurrent.LinkedBlockingQueue;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.JOptionPane;
+
 /**
  * Ray tracer framebuffer visualizer.
  * @author  Maximiliano Monterrubio Gutierrez.
@@ -24,6 +26,7 @@ public class FrameBufferWindow extends javax.swing.JFrame {
     private int w, h;
     private double fb[][][];
     private BufferedImage img;
+    public BufferUpdater bufferUpdater;
     
     /** Creates new form FrameBuffer
      * @param width Width of the framebuffer in pixels.
@@ -47,6 +50,8 @@ public class FrameBufferWindow extends javax.swing.JFrame {
         jLabel5.setIcon(ii);
         jPanel2.repaint();
         jLabel1.setDoubleBuffered(false);
+        bufferUpdater = new BufferUpdater();
+        bufferUpdater.start();
     }
 
     public double[][][] getFrameBuffer(){
@@ -67,21 +72,116 @@ public class FrameBufferWindow extends javax.swing.JFrame {
      * @param h The height of the overwriting section.
      */
     public void writeSection(double[][][] section, int x, int y, int w, int h){
-        for(int i = 0; i < w; ++i){
-            for(int j = 0; j < h; ++j){
-                fb[i+x][j+y][0] = section[i+x][j+y][0];
-                fb[i+x][j+y][1] = section[i+x][j+y][1];
-                fb[i+x][j+y][2] = section[i+x][j+y][2];
-                int rgb;
-                rgb = ((int) (fb[x+i][y+j][0] * 255)) & 0xFF;
-                rgb <<= 8;
-                rgb |= ((int) (fb[x+i][y+j][1] * 255)) & 0xFF;
-                rgb <<= 8;
-                rgb |= ((int) (fb[x+i][y+j][2] * 255)) & 0xFF;
-                img.setRGB(i+x, y+j, rgb);
-            }
+        // FIXED: lhchavez sep/09: Changed the update code to a new thread
+        BufferUpdateEvent bue = new BufferUpdateEvent(section, x, y, w, h);
+        bufferUpdater.enqueue(bue);
+    }
+
+    /** An event to signal that we should update a portion of the buffer
+     *
+     * @author Luis Hector Chavez
+     */
+    public class BufferUpdateEvent {
+        public double[][][] section;
+        public int x;
+        public int y;
+        public int w;
+        public int h;
+        boolean finish;
+
+        /** An event that signals a pending section of the framebuffer.
+         *
+         * @param section A float tridimensional array that represents the new section to update in the framebuffer.  The last coordinate
+         * represents de R, G and B values of the color to se.
+         * @param x The x position to start overwriting.
+         * @param y The y position to start overwriting.
+         * @param w The width of the overwriting section.
+         * @param h The height of the overwriting section.
+         */
+        public BufferUpdateEvent(double[][][] sect, int x, int y, int w, int h) {
+            this.section = new double[w][h][3];
+            this.x = x;
+            this.y = y;
+            this.w = w;
+            this.h = h;
+
+            for(int i = 0; i < w; i++)
+                for(int j = 0; j < h; j++)
+                    for(int k = 0; k < 3; k++)
+                        this.section[i][j][k] = sect[i+x][j+y][k];
+
+            finish = false;
         }
-        jLabel5.imageUpdate(img, ImageObserver.SOMEBITS, x, y, w, h);
+
+        /** A fake event that signals that this is the last event of the queue.
+         *
+         */
+        public BufferUpdateEvent() {
+            finish = true;
+        }
+    }
+
+    /** A class that serves as the only thread that updates the image buffer
+     *
+     * @author Luis Hector Chavez
+     */
+    public class BufferUpdater extends Thread {
+        private LinkedBlockingQueue<BufferUpdateEvent> q;
+
+        /** The constructor of the buffer updater
+         *
+         */
+        public BufferUpdater() {
+            q = new LinkedBlockingQueue<BufferUpdateEvent>();
+        }
+
+        /** Adds an update event to the queue
+         *
+         * @param e The event to be queued.
+         */
+        public void enqueue(BufferUpdateEvent e) {
+            try{
+                q.put(e);
+            }catch(InterruptedException ex) {}
+        }
+
+        /** Adds a special terminating update that signals this thread to silently die
+         *
+         */
+        public void terminate() {
+            enqueue(new BufferUpdateEvent());
+        }
+
+        /** The running loop for the thread
+         *
+         */
+        @Override
+        public void run() {
+            try {
+                while(true) {
+                    BufferUpdateEvent e = q.take();
+
+                    if(e.finish) break;
+
+                    for(int i = 0; i < e.w; ++i){
+                        for(int j = 0; j < e.h; ++j){
+                            fb[i+e.x][j+e.y][0] = e.section[i][j][0];
+                            fb[i+e.x][j+e.y][1] = e.section[i][j][1];
+                            fb[i+e.x][j+e.y][2] = e.section[i][j][2];
+                            int rgb;
+                            rgb = ((int) (fb[e.x+i][e.y+j][0] * 255)) & 0xFF;
+                            rgb <<= 8;
+                            rgb |= ((int) (fb[e.x+i][e.y+j][1] * 255)) & 0xFF;
+                            rgb <<= 8;
+                            rgb |= ((int) (fb[e.x+i][e.y+j][2] * 255)) & 0xFF;
+                            img.setRGB(i+e.x, e.y+j, rgb);
+                        }
+                    }
+                    jLabel5.imageUpdate(img, ImageObserver.SOMEBITS, e.x, e.y, e.w, e.h);
+                }
+            } catch(InterruptedException ex) {}
+        }
+
     }
     
     /** This method is called from within the constructor to
@@ -288,6 +388,7 @@ private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
 }//GEN-LAST:event_jMenuItem1ActionPerformed
 
 private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
+    bufferUpdater.terminate();
     Runtime.getRuntime().gc();
 }//GEN-LAST:event_formWindowClosed
 

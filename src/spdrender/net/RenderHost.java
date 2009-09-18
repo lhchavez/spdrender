@@ -122,6 +122,7 @@ public class RenderHost {
                 }
                 long end = System.currentTimeMillis() - startTime;
                 fbw.timeLabel.setText(end / 1000 + " secs");
+                fbw.bufferUpdater.terminate();
                 pw.close();
                 br.close();
                 s.close();
