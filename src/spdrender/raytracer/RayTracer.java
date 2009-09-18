@@ -86,19 +86,21 @@ public class RayTracer {
                 int ve = (pieces[u]/cols + 1)*RayTracer.TILE_SIZE;
                 int hs = (pieces[u] % cols)*RayTracer.TILE_SIZE;
                 int he = (pieces[u] % cols + 1)*RayTracer.TILE_SIZE;
+
+                double cr, cg, cb;
+                
                 ve = ve > h ? h : ve;
                 he = he > w ? w : he;
                 for(int j = vs; j < ve; ++j){
                     for(int i = hs; i < he ; ++i){
                         for(int aa1 = 0; aa1 < s; ++aa1){
+                            Vector3D left = leftBorder.add(ay.scalarProd(j*1.0/(h-1) + aa1*1.0/((h-1)*s) + Vector3D.EPSILON));
                             for(int aa2 = 0; aa2 < s ;++aa2){
-                                Vector3D left = leftBorder.add(ay.scalarProd(j*1.0/(h-1) + aa1*1.0/((h-1)*s) + Vector3D.EPSILON));
                                 Vector3D ad1 = left.add(ax.scalarProd(i*1.0/(w-1) + aa2*1.0/((w-1)*s) + Vector3D.EPSILON));
                                 Vector3D ad = ad1.sub(co);
                                 Ray r = new Ray(co, ad.normalize());                
                                 Color c = new Color();
                                 rayTrace(r, c, 0);
-                                double cr, cg, cb;
                                 cr = c.getR();
                                 cg = c.getG();
                                 cb = c.getB();
@@ -287,8 +289,8 @@ public class RayTracer {
                 SurfaceLight sl = (SurfaceLight)l;
                 double retval = 0.0;
                 for (int x = 0; x < lsc; x++){
+                    Vector3D left = sl.getPosition().add(sl.getVSide().scalarProd((r.nextDouble() + x)*(1.0/lsc) + Vector3D.EPSILON));
                     for ( int y = 0; y < lsc; y++ ){
-                        Vector3D left = sl.getPosition().add(sl.getVSide().scalarProd((r.nextDouble() + x)*(1.0/lsc) + Vector3D.EPSILON));
                         Vector3D ad = left.add(sl.getHSide().scalarProd((r.nextDouble() + y)*(1.0/lsc) + Vector3D.EPSILON));
 			Vector3D dir = ad.sub(ip);
 			dir = dir.normalize();
