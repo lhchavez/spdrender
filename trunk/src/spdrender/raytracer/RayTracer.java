@@ -32,11 +32,9 @@ public class RayTracer {
     private int depth;
     private Vector3D leftBorder, rightBorder, bottomlBorder, bottomrBorder;
     private Vector3D ax, ay;
-    private double dist;
     
     private long start, end;
     
-    private double[][][] fb;
     private FrameBufferWindow v;
     private Scene sc;
     private int progress;
@@ -50,6 +48,7 @@ public class RayTracer {
         private int pieces[];
         private int start, end;
         private PrintWriter pw;
+        private double[][][] fb;
         
         /**
          * Creates a new render thread with the specified tile list and the interval to work on.
@@ -58,10 +57,7 @@ public class RayTracer {
          * @param end End index of the tile set.
          */
         public RenderThread(int pieces[], int start, int end){
-            this.pieces = pieces;
-            this.start = start;
-            this.end = end;
-            pw = null;
+            this(pieces, start, end, null);
         }
 
         /**
@@ -76,6 +72,7 @@ public class RayTracer {
             this.start = start;
             this.end = end;
             this.pw = pw;
+            this.fb = new double[RayTracer.TILE_SIZE][RayTracer.TILE_SIZE][3];
         }
         
         public void run(){
@@ -107,9 +104,9 @@ public class RayTracer {
                                 cr = cr > 1.0 ? 1.0 : cr;
                                 cg = cg > 1.0 ? 1.0 : cg;
                                 cb = cb > 1.0 ? 1.0 : cb;
-                                fb[i][j][0] += cr/(s*s);
-                                fb[i][j][1] += cg/(s*s);
-                                fb[i][j][2] += cb/(s*s);
+                                fb[i-hs][j-vs][0] += cr/(s*s);
+                                fb[i-hs][j-vs][1] += cg/(s*s);
+                                fb[i-hs][j-vs][2] += cb/(s*s);
                             }
                         }
                     }   
@@ -117,15 +114,17 @@ public class RayTracer {
                 ++progress;
                 if(pw == null){
                     v.writeSection(fb, hs, vs, he - hs, ve - vs);
+                    this.fb = new double[RayTracer.TILE_SIZE][RayTracer.TILE_SIZE][3];
                 } else {
-                    synchronized(pw){
-                        pw.println(pieces[u]);
+                    final PrintWriter out = this.pw;
+                    synchronized(out){
+                        out.println(pieces[u]);
                         for(int i = vs; i < ve; ++i){
                             int j;
                             for(j = hs; j < he-1; ++j){
-                                pw.print(fb[j][i][0] + "|" + fb[j][i][1] + "|" + fb[j][i][2] + ",");
+                                out.print(fb[j-vs][i-hs][0] + "|" + fb[j-vs][i-hs][1] + "|" + fb[j-vs][i-hs][2] + ",");
                             }
-                            pw.println(fb[j][i][0] + "|" + fb[j][i][1] + "|" + fb[j][i][2]);
+                            out.println(fb[j-vs][i-hs][0] + "|" + fb[j-vs][i-hs][1] + "|" + fb[j-vs][i-hs][2]);
                         }
                     }
                 }
@@ -155,7 +154,6 @@ public class RayTracer {
         h = scn.getRenderHeight();
         s = scn.getAAPasses();
         sc = scn;
-        this.fb = new double[w][h][3];
         this.depth = depth; 
         progress = totalPieces = 0;
         r = new Random();
@@ -208,19 +206,8 @@ public class RayTracer {
     }
     
     /**
-     * Returns the framebuffer of the scene in a single precision, floating point format.
-     * 
-     * @return A tridimensional array that represents the framebuffer. The first and second indexes
-     * represent the x, y position in pixels, and the third index represents the RGB (in this order)
-     * components represented in a [0,1] interval.
-     */
-    public double[][][] getFrameBuffer(){
-        return fb;
-    }
-    
-    /**
      * Informs the progress of the current render.
-     * @return A single precision doubleing point number between 0 and 100.
+     * @return A single precision floating point number between 0 and 100.
      */
     public double getProgress(){
         return (progress*100.f)/totalPieces;
@@ -231,10 +218,11 @@ public class RayTracer {
             return;
         } else {
             Primitive p = nearest(r);
-            Vector3D ip = r.getOrigin().add(r.getDirection().scalarProd(dist));
             if(p == null){
                 return;
             }
+            double dist = p.intersect(r);
+            Vector3D ip = r.getOrigin().add(r.getDirection().scalarProd(dist));
             if(!p.isLight()){
                 Primitive[] primitives = sc.getPrimitives();
                 Vector3D ln = p.getNormal(ip);
@@ -359,7 +347,6 @@ public class RayTracer {
         if(nearest >= RayTracer.DISTANCE_LIMIT)
             return null;
         else {
-            dist = nearest;
             return best;
         }
     }
@@ -399,7 +386,6 @@ public class RayTracer {
         if(nearest >= RayTracer.DISTANCE_LIMIT)
             return null;
         else {
-            dist = nearest;
             return best;
         }
     }
@@ -458,7 +444,7 @@ public class RayTracer {
         newOrigin = newOrigin.add(cam.getOrigin());
         cam.setOrigin(newOrigin);
         
-        /* Compute de sides of the focal plane used to interpolate
+        /* Compute the sides of the focal plane used to interpolate
          * when rendering */
         ax = rightBorder.sub(leftBorder);
         ay = bottomlBorder.sub(leftBorder);
