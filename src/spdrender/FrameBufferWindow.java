@@ -99,16 +99,11 @@ public class FrameBufferWindow extends javax.swing.JFrame {
          * @param h The height of the overwriting section.
          */
         public BufferUpdateEvent(double[][][] sect, int x, int y, int w, int h) {
-            this.section = new double[w][h][3];
+            this.section = sect;
             this.x = x;
             this.y = y;
             this.w = w;
             this.h = h;
-
-            for(int i = 0; i < w; i++)
-                for(int j = 0; j < h; j++)
-                    for(int k = 0; k < 3; k++)
-                        this.section[i][j][k] = sect[i+x][j+y][k];
 
             finish = false;
         }
