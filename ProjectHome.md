@@ -1,0 +1,1 @@
+A 3D image synthesis project written in Java using the ray tracing algorithm.  Supports very basic materials and primitives.  Focused on multithreaded and distributed rendering through a TCP/IP network.
