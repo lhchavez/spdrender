@@ -22,7 +22,6 @@ public class TransformMatrixTest {
      */
     @Test
     public void testInvert() {
-        System.out.println("invert");
         Vector3D v = new Vector3D(1.0f, 0.0f, 0.0f);
         Vector3D w = new Vector3D(3.0f, 5.0f, 0.0f);
         Vector3D x = new Vector3D(3.0f, 6.0f, 9.0f);
@@ -39,7 +38,6 @@ public class TransformMatrixTest {
      */
     @Test
     public void testApply() {
-        System.out.println("apply");
         Vector3D v = new Vector3D(1,3,2);
         TransformMatrix instance = new TransformMatrix(
                 new Vector3D(1,1,1),
@@ -55,7 +53,6 @@ public class TransformMatrixTest {
      */
    @Test
    public void testCompose(){
-       System.out.println("compose");
        Vector3D v = new Vector3D(1.0f, 3.0f, 3.0f);
        Vector3D w = new Vector3D(0.0f, 5.0f, 6.0f);
        Vector3D x = new Vector3D(0.0f, 0.0f, 9.0f);

@@ -25,7 +25,6 @@ public class RenderNodeTest {
      */
     @Test
     public void testRenderAndSend() throws Exception {
-        System.out.println("renderAndSend");
         Thread server = new Thread(new Runnable(){
             public void run(){
                 try {
@@ -54,6 +53,7 @@ public class RenderNodeTest {
             }
         });
         t.start();
+        t.join();
         server.join();
     }
 }

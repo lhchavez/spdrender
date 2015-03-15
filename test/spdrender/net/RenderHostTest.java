@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
  * @author Maximiliano Monterrubio Gutierrez.
  */
 public class RenderHostTest {
-    private static String inputFile = "test/spdrender/net/scene_example.xml";
+    private static File inputFile = new File("test/spdrender/net/scene_example.xml");
     private int totalPieces;
     
     private class ClientMock implements Runnable {
@@ -32,23 +32,24 @@ public class RenderHostTest {
         public void run(){
             try {
                 Socket s = new Socket("localhost", 1337);
-                FileInputStream fis = new FileInputStream(inputFile);
-                InputStream in = s.getInputStream();
+                FileReader fr = new FileReader(inputFile);
+                BufferedReader d = new BufferedReader(new InputStreamReader(s.getInputStream()));
                 PrintWriter pw = new PrintWriter(s.getOutputStream(), true);
+                int sceneLength = Integer.parseInt(d.readLine());
+                assertEquals(sceneLength, inputFile.length());
                 int f;
-                while((f = in.read()) != '\n'){
-                    System.out.print((char)f);
-                }
-                System.out.println();
-                while((f = fis.read()) != -1){
-                    assertEquals(f, in.read());
+                while((f = fr.read()) != -1){
+                    assertEquals(f, d.read());
                 }
                 pw.println(threads + "," + clock);
-                BufferedReader d = new BufferedReader(new InputStreamReader(in));
-                System.out.println("Calculating piece count...");
-                RenderHostTest.this.totalPieces += d.readLine().split(",").length;
+                String[] pieces = d.readLine().split(",");
+                synchronized (RenderHostTest.this) {
+                    RenderHostTest.this.totalPieces += pieces.length;
+                }
+                // Send a bogus number so that the server finishes.
                 pw.println(-1);
-                in.close();
+                fr.close();
+                d.close();
                 pw.close();
                 s.close();
             } catch(Exception e){
@@ -73,7 +74,7 @@ public class RenderHostTest {
         Thread server = new Thread(new Runnable(){
             public void run(){
                 try {
-                    RenderHost rh = new RenderHost(null, new File(inputFile), 1337, 2);
+                    RenderHost rh = new RenderHost(null, inputFile, 1337, 2);
                     rh.startServer();
                     if(rh.errors()){
                         fail("And error ocurred in the server: " + rh.getErrorMsg());
@@ -88,7 +89,7 @@ public class RenderHostTest {
         Thread.sleep(100);
         client1.start();
         client2.start();
-        Thread.sleep(1000);
+        server.join();
         assertEquals(LoadBalancer.getPieceCount(800, 600), totalPieces);
     }
 }

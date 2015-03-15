@@ -29,7 +29,6 @@ public class LoadBalancerTest {
      */
     @Test
     public void testGetPieceCount() {
-        System.out.println("getPieceCount");
         int expResult = 25;
         int result = LoadBalancer.getPieceCount(w, h);
         assertEquals(expResult, result);
@@ -40,13 +39,11 @@ public class LoadBalancerTest {
      */
     @Test
     public void testGetPieces() {
-        System.out.println("getPieces");
         LoadBalancer instance = new LoadBalancer(w, h);
         int sum = 0;
         int expectedSum = 300;
         int[] result = instance.getPieces();
         for(int i = 0; i < result.length; ++i){
-            System.out.println(result[i]);
             sum += result[i];
         }
         assertEquals(expectedSum, sum);
@@ -57,12 +54,10 @@ public class LoadBalancerTest {
      */
     @Test
     public void testGetUniformSegments() {
-        System.out.println("getUniformSegments");
         int jobs = 5;
         LoadBalancer instance = new LoadBalancer(w, h);
         int[][] result = instance.getUniformSegments(jobs);
         for(int i = 0; i < 5; ++i){
-            System.out.println(result[i][0] + ", " + result[i][1]);
             assertEquals(i*5, result[i][0]);
             assertEquals((i+1)*5, result[i][1]);
         }
@@ -73,7 +68,6 @@ public class LoadBalancerTest {
      */
     @Test
     public void testGetProportionalSegments() {
-        System.out.println("getProportionalSegments");
         int[][] nodeconfig = {
             { 4, 100 }, // 4 cores / 100 Mhz per core
             { 2, 150 }, // 2 cores / 150 Mhz per core
@@ -92,5 +86,4 @@ public class LoadBalancerTest {
             }
         }
     }
-
 }

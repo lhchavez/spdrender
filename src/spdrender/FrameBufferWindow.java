@@ -58,7 +58,8 @@ public class FrameBufferWindow extends javax.swing.JFrame {
         return fb;
     }
     
-    public BufferedImage getRender(){
+    public BufferedImage getRender() throws InterruptedException {
+        synchronize();
         return img;
     }
     
@@ -77,7 +78,19 @@ public class FrameBufferWindow extends javax.swing.JFrame {
         bufferUpdater.enqueue(bue);
     }
 
+    /** Wait until all events in the queue are consumed.
+    */
+    public void synchronize() throws InterruptedException {
+        BufferUpdateEvent bue = new BufferUpdateEvent(false);
+        bufferUpdater.enqueue(bue);
+        synchronized(bue) {
+            bue.wait();
+        }
+    }
+
     /** An event to signal that we should update a portion of the buffer
+     *
+     * Once en event is processed, it is signalled upon to notify termination.
      *
      * @author Luis Hector Chavez
      */
@@ -108,11 +121,12 @@ public class FrameBufferWindow extends javax.swing.JFrame {
             finish = false;
         }
 
-        /** A fake event that signals that this is the last event of the queue.
+        /** A fake event that helps with synchronization.
          *
+         * @param finish If true, signals the thread to terminate. Otherwise keep processing.
          */
-        public BufferUpdateEvent() {
-            finish = true;
+        public BufferUpdateEvent(boolean finish) {
+            this.finish = finish;
         }
     }
 
@@ -144,7 +158,7 @@ public class FrameBufferWindow extends javax.swing.JFrame {
          *
          */
         public void terminate() {
-            enqueue(new BufferUpdateEvent());
+            enqueue(new BufferUpdateEvent(true));
         }
 
         /** The running loop for the thread
@@ -156,7 +170,12 @@ public class FrameBufferWindow extends javax.swing.JFrame {
                 while(true) {
                     BufferUpdateEvent e = q.take();
 
-                    if(e.finish) break;
+                    if(e.finish) {
+                        synchronized (e) {
+                            e.notify();
+                        }
+                        break;
+                    }
 
                     for(int i = 0; i < e.w; ++i){
                         for(int j = 0; j < e.h; ++j){
@@ -173,6 +192,10 @@ public class FrameBufferWindow extends javax.swing.JFrame {
                         }
                     }
                     jLabel5.imageUpdate(img, ImageObserver.SOMEBITS, e.x, e.y, e.w, e.h);
+
+                    synchronized (e) {
+                        e.notify();
+                    }
                 }
             } catch(InterruptedException ex) {}
         }

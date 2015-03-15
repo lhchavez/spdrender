@@ -22,7 +22,6 @@ public class Vector3DTest {
      */
     @Test
     public void testCross() {
-        System.out.println("cross");
         Vector3D v = new Vector3D(1.0,1.0,1.0);
         Vector3D instance = new Vector3D(0.0,1.0,0.0);
         Vector3D expResult = new Vector3D(1.0,0.0,-1.0);
@@ -35,12 +34,11 @@ public class Vector3DTest {
      */
     @Test
     public void testDot() {
-        System.out.println("dot");
         Vector3D v = new Vector3D(1.0,2.0,3.0);
         Vector3D instance = new Vector3D(3.0,2.0,1.0);
         double expResult = 10.0;
         double result = instance.dot(v);
-        assertEquals(expResult, result);
+        assertEquals(expResult, result, 1e-6);
     }
 
     /**
@@ -48,7 +46,6 @@ public class Vector3DTest {
      */
     @Test
     public void testAdd() {
-        System.out.println("add");
         Vector3D v = new Vector3D(1.0,2.0,3.0);
         Vector3D instance = new Vector3D(0.0,-1.0,3.0);
         Vector3D expResult = new Vector3D(1.0,1.0,6.0);
@@ -61,7 +58,6 @@ public class Vector3DTest {
      */
     @Test
     public void testSub() {
-        System.out.println("sub");
         Vector3D v = new Vector3D(1.0,5.0,2.0);
         Vector3D instance = new Vector3D(1.0,5.0,2.0);
         Vector3D expResult = new Vector3D();
@@ -74,7 +70,6 @@ public class Vector3DTest {
      */
     @Test
     public void testInv() {
-        System.out.println("inv");
         Vector3D instance = new Vector3D(1.0,5.0,3.0);
         Vector3D expResult = new Vector3D(-1.0, -5.0, -3.0);
         Vector3D result = instance.inv();
@@ -86,7 +81,6 @@ public class Vector3DTest {
      */
     @Test
     public void testScalarProd() {
-        System.out.println("scalarProd");
         double c = 5.0;
         Vector3D instance = new Vector3D(6.0,4.0,2.0);
         Vector3D expResult = new Vector3D(30.0, 20.0, 10.0);
@@ -99,11 +93,10 @@ public class Vector3DTest {
      */
     @Test
     public void testNorm() {
-        System.out.println("norm");
         Vector3D instance = new Vector3D(1.0,1.0,1.0);
         double expResult = Math.sqrt(3.0);
         double result = instance.norm();
-        assertEquals(expResult, result);
+        assertEquals(expResult, result, 1e-6);
     }
 
     /**
@@ -111,11 +104,10 @@ public class Vector3DTest {
      */
     @Test
     public void testSqrNorm() {
-        System.out.println("sqrNorm");
         Vector3D instance = new Vector3D(3.0,4.0,5.0);
         double expResult = 50.0;
         double result = instance.sqrNorm();
-        assertEquals(expResult, result);
+        assertEquals(expResult, result, 1e-6);
     }
 
     /**
@@ -123,7 +115,6 @@ public class Vector3DTest {
      */
     @Test
     public void testNormalize() {
-        System.out.println("normalize");
         Vector3D instance = new Vector3D(0.0,3.0,4.0);
         Vector3D expResult = new Vector3D(0.0,3.0/5.0,4.0/5.0);
         Vector3D result = instance.normalize();
@@ -135,7 +126,6 @@ public class Vector3DTest {
      */
     @Test
     public void testIsNormalTo() {
-        System.out.println("isNormalTo");
         Vector3D v = new Vector3D(0.0,0.0,1.0);
         Vector3D instance = new Vector3D(1.0,0.0,0.0);
         boolean expResult = true;
@@ -148,7 +138,6 @@ public class Vector3DTest {
      */
     @Test
     public void testIsCollinearTo() {
-        System.out.println("isCollinearTo");
         Vector3D v = new Vector3D(1.0,1.0,1.0);
         Vector3D instance = new Vector3D(5.0,5.0,5.0);
         boolean expResult = true;
@@ -161,7 +150,6 @@ public class Vector3DTest {
      */
     @Test
     public void testEquals() {
-        System.out.println("equals");
         Vector3D v = new Vector3D(1.0,4.0,3.0);
         Vector3D instance = new Vector3D(1.0,4.0,3.0);
         boolean expResult = true;
@@ -174,7 +162,6 @@ public class Vector3DTest {
      */
     @Test
     public void testToString() {
-        System.out.println("toString");
         Vector3D instance = new Vector3D(6.0,5.0,2.0);
         String expResult = "<6.0,5.0,2.0>";
         String result = instance.toString();

@@ -21,13 +21,12 @@ public class FrameBufferTest {
      * Test for writing a section of the framebuffer asynchronously. 
      */
     @Test
-    public void testWriteSection(){
-        System.out.println("writeSection");
+    public void testWriteSection() throws InterruptedException {
         FrameBufferWindow instance = new FrameBufferWindow(10,10);
-        double[][][] sect = new double[10][10][3];
-        for(int i = 5; i < 10; ++i){
-            for(int j = 5; j < 10; ++j){
-                sect[i][j][0] = sect[i][j][1] = sect[i][j][2] = 0.5f;
+        double[][][] sect = new double[5][5][3];
+        for(int i = 0; i < 5; ++i){
+            for(int j = 0; j < 5; ++j){
+                sect[i][j][0] = sect[i][j][1] = sect[i][j][2] = 0.5;
             }
         }
         instance.writeSection(sect, 5, 5, 5, 5);

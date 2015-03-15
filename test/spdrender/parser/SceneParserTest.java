@@ -29,7 +29,6 @@ public class SceneParserTest {
      */
     @Test
     public void testParseScene() throws IOException, SceneParserException {
-        System.out.println("parseScene");
         SceneParser instance = new SceneParser(new File("test/spdrender/parser/scene_example.xml"));
         Scene result = instance.parseScene();
         assertEquals(1, result.getAAPasses());
@@ -37,10 +36,5 @@ public class SceneParserTest {
         assertEquals(800, result.getRenderWidth());
         assertEquals("TestScene", result.getSceneName());
         Primitive[] prims = result.getPrimitives();
-        System.out.println(result);
-        for(int i = 0; i < prims.length; ++i){
-            System.out.println(prims[i]);
-        }
     }
-
 }

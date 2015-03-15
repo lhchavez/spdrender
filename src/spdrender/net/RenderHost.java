@@ -98,6 +98,9 @@ public class RenderHost {
                     pnumber = 0;
                     try {
                         pnumber = Integer.valueOf(br.readLine());
+                        if (pnumber < 0) {
+                            break;
+                        }
                     } catch(NumberFormatException e){
                         break;
                     }
@@ -117,12 +120,16 @@ public class RenderHost {
                             }
                         }
                     }
-                    fbw.writeSection(fb, hs, vs, he-hs, ve-vs);
+                    if (fbw != null) {
+                        fbw.writeSection(fb, hs, vs, he-hs, ve-vs);
+                    }
                     pieceCount++;
                 }
                 long end = System.currentTimeMillis() - startTime;
-                fbw.timeLabel.setText(end / 1000 + " secs");
-                fbw.bufferUpdater.terminate();
+                if (fbw != null) {
+                    fbw.timeLabel.setText(end / 1000 + " secs");
+                    fbw.bufferUpdater.terminate();
+                }
                 pw.close();
                 br.close();
                 s.close();

@@ -40,6 +40,7 @@ public class RayTracer {
     private int progress;
     private int totalPieces;
     private Random r;
+    private Thread rt[];
     
     /**
      * Implementation for the threaded ray tracing.
@@ -119,12 +120,12 @@ public class RayTracer {
                     final PrintWriter out = this.pw;
                     synchronized(out){
                         out.println(pieces[u]);
-                        for(int i = vs; i < ve; ++i){
-                            int j;
-                            for(j = hs; j < he-1; ++j){
-                                out.print(fb[j-vs][i-hs][0] + "|" + fb[j-vs][i-hs][1] + "|" + fb[j-vs][i-hs][2] + ",");
+                        for(int j = vs; j < ve; ++j){
+                            int i;
+                            for(i = hs; i < he-1; ++i){
+                                out.print(fb[i-hs][j-vs][0] + "|" + fb[i-hs][j-vs][1] + "|" + fb[i-hs][j-vs][2] + ",");
                             }
-                            out.println(fb[j-vs][i-hs][0] + "|" + fb[j-vs][i-hs][1] + "|" + fb[j-vs][i-hs][2]);
+                            out.println(fb[i-hs][j-vs][0] + "|" + fb[i-hs][j-vs][1] + "|" + fb[i-hs][j-vs][2]);
                         }
                     }
                 }
@@ -170,6 +171,15 @@ public class RayTracer {
         totalPieces = lb.getPieces().length;
         render(lb.getPieces(), lb.getUniformSegments(threads), threads);
     }
+
+    /**
+     * Waits until all render threads have finished
+     */
+    public void join() throws InterruptedException {
+        for (int i = 0; i < rt.length; ++i) {
+            rt[i].join();
+        }
+    }
     
     /**
      * Performs a multithreaded render of a partial part of the scene.
@@ -180,10 +190,10 @@ public class RayTracer {
      */
     private void render(int[] pieces, int[][] segments, int threads){
         initRender();
-        Runnable rt[] = new Runnable[threads];
+        rt = new Thread[threads];
         for(int i = 0; i < threads; ++i){
-            rt[i] = new RenderThread(pieces, segments[i][0], segments[i][1]);
-            new Thread(rt[i]).start();
+            rt[i] = new Thread(new RenderThread(pieces, segments[i][0], segments[i][1]));
+            rt[i].start();
         }
     }
     
@@ -197,11 +207,11 @@ public class RayTracer {
      */
     public void render(int[] pieces, int[][] segments, int threads, PrintWriter pw){
         initRender();
-        Runnable rt[] = new Runnable[threads];
+        rt = new Thread[threads];
         for(int i = 0; i < threads; ++i){
-            rt[i] = new RenderThread(pieces, segments[i][0], segments[i][1], pw);
+            rt[i] = new Thread(new RenderThread(pieces, segments[i][0], segments[i][1], pw));
             totalPieces += segments[i][1] - segments[i][0];
-            new Thread(rt[i]).start();
+            rt[i].start();
         }
     }
     

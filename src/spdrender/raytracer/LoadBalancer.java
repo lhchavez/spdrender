@@ -5,6 +5,8 @@
 
 package spdrender.raytracer;
 
+import java.util.Random;
+
 /**
  * Simple load balancer engine to partition the render job in order to distribute over local or
  * remote threads.
@@ -50,12 +52,13 @@ public class LoadBalancer {
         for(int i = 0; i < pieces.length; ++i){
             pieces[i] = i;
         }
-        for(int i = 0; i < pieces.length; ++i){
-            int r = (int)(Math.random()*pieces.length);
+        // Perform a Knuth shuffle on the pieces.
+        Random rand = new Random();
+        for(int i = pieces.length - 1; i >= 0; --i){
+            int r = rand.nextInt(i + 1);
             int t = pieces[i];
             pieces[i] = pieces[r];
             pieces[r] = t;
-            
         }
     }
     
